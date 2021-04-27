@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CPS Project</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/sigma.core.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/conrad.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/utils/sigma.utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/utils/sigma.polyfills.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/sigma.settings.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/classes/sigma.classes.dispatcher.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/classes/sigma.classes.configurable.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/classes/sigma.classes.graph.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/classes/sigma.classes.camera.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/classes/sigma.classes.quad.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/classes/sigma.classes.edgequad.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/captors/sigma.captors.mouse.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/captors/sigma.captors.touch.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/sigma.renderers.canvas.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/sigma.renderers.webgl.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/sigma.renderers.svg.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/sigma.renderers.def.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/canvas/sigma.canvas.labels.def.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/canvas/sigma.canvas.hovers.def.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/canvas/sigma.canvas.nodes.def.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/canvas/sigma.canvas.edges.def.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/canvas/sigma.canvas.edges.curve.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/canvas/sigma.canvas.edges.arrow.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/canvas/sigma.canvas.edges.curvedArrow.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/canvas/sigma.canvas.edgehovers.def.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/canvas/sigma.canvas.edgehovers.curve.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/canvas/sigma.canvas.edgehovers.arrow.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/canvas/sigma.canvas.edgehovers.curvedArrow.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/renderers/canvas/sigma.canvas.extremities.def.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/middlewares/sigma.middlewares.rescale.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/middlewares/sigma.middlewares.copy.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/misc/sigma.misc.animation.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/misc/sigma.misc.bindEvents.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/misc/sigma.misc.bindDOMEvents.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/misc/sigma.misc.drawHovers.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/plugins/sigma.plugins.dragNodes/sigma.plugins.dragNodes.js"></script>
+
+    <script src="script.js"></script>
+    
+    <style>
+        html {
+            height: 100%;
+        }
+    
+        body {
+            height: 97vh;
+            min-width: 1600px;
+            min-height: 875px;
+        }
+    
+        #sigma-container {
+            width: 100%;
+            height: 100%;
+            background-color: #FFFFFF
+        }
+    
+        .grid {
+            height: 100%;
+        }
+    </style>
+    </head>
+    
+    <body>
+        <div class="ui grid scrolling content">
+
+            <!-- MODEL CONFIGURATION PANEL -->
+            <div class="four wide column" style="padding-left: 30px">
+                <div style="padding-top: 20px;">
+    
+                    <h2 class="ui icon center aligned header">
+                        <i class="settings icon"></i>
+                        <div class="content">
+                            Model Configuration Panel
+                            <div class="sub header">Configure your Linear Temporal Logic (LTL) model by adding new states or
+                                by modifying pre-existing states.</div>
+                        </div>
+                    </h2>
+    
+                    <div id="addDiv" style="margin-top:30px;">
+                        <h4 class="ui horizontal divider header">
+                            <i class="plus square icon"></i>
+                            Add State
+                        </h4>
+
+                        <div class="ui fluid labeled input">
+                            <div class="ui label">
+                                State Name
+                            </div>
+                            <input type="text" placeholder="State Name" name="inputNewStateName">
+        
+                            <div class="ui toggle checkbox" id="toggleDivNewInitialState" style="margin-left: 10px; margin-top:8px;">
+                                <label>Initial State</label>
+                                <input type="checkbox" name="toggleNewInitialState" tabindex="0" class="hidden">
+                            </div>
+                        </div>
+        
+                        <div class="ui fluid labeled input" style="margin-top:10px;">
+                            <div class="ui label">
+                                Connected To
+                            </div>
+                            <div class="ui fluid labeled selection dropdown" id="dropdownDivNewStateConnectedTo">
+                                <input type="hidden" name="dropdownNewStateConnectedTo" value="None">
+                                <i class="dropdown icon"></i>
+                                <div class="default text">Connected to</div>
+                                <div class="menu" id="menuNewStateConnectedTo">
+                                    <div class="item" data-value="None">
+                                        None
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+        
+                        <div class="ui fluid labeled input" style="margin-top:10px;">
+                            <div class="ui label">
+                                Atomic Propositions
+                            </div>
+                            <input type="text" placeholder="Atomic Propositions (Comma Separated)" name="inputNewStateAP">
+                        </div>
+
+                        <button class="fluid right labeled icon green ui button" style="margin-top:10px;" id="btnAddState">
+                            <i class="plus square icon"></i>
+                            Add State to Model
+                        </button>
+                    </div>
+    
+                    <div id="modifyDiv" style="margin-top:30px;">
+                        <h4 class="ui horizontal divider header">
+                            <i class="edit icon"></i>
+                            Modify Model
+                        </h4>
+    
+                        <div class="ui fluid labeled input" style="margin-top:10px;">
+                            <div class="ui label">
+                                State Name
+                            </div>
+                            <input type="text" placeholder="State Name" disabled name="inputModifyStateName">
+        
+                            <div class="ui toggle checkbox" id="toggleDivModifyInitialState" style="margin-left: 10px; margin-top:8px;">
+                                <label>Initial State</label>
+                                <input type="checkbox" name="toggleModifyInitialState" tabindex="0" class="hidden">
+                            </div>
+                        </div>
+        
+                        <div class="ui fluid labeled input" style="margin-top:10px;">
+                            <div class="ui label">
+                                Connected To
+                            </div>
+                            <div class="ui fluid labeled selection dropdown" id="dropdownDivModifyStateConnectedTo">
+                                <input type="hidden" name="dropdownModifyStateConnectedTo" value="None">
+                                <i class="dropdown icon"></i>
+                                <div class="default text">Connected To</div>
+                                <div class="menu" id="menuModifyStateConnectedTo">
+                                    <div class="item" data-value="None">
+                                        None
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+        
+                        <div class="ui fluid labeled input" style="margin-top:10px;">
+                            <div class="ui label">
+                                Atomic Propositions
+                            </div>
+                            <input type="text" placeholder="Atomic Propositions (Comma Separated)" name="inputModifyStateAP">
+                        </div>
+        
+                        <div class="two ui buttons" style="margin-top:10px;">
+                            <button class="fluid labeled icon orange ui button" id="btnDeleteState">
+                                <i class="x icon"></i>
+                                Delete State
+                            </button>
+                            <div class="or"></div>
+                            <button class="fluid right labeled icon blue ui button"id="btnModifyState">
+                                <i class="edit icon"></i>
+                                Modify State
+                            </button>
+                        </div>
+
+                        <button class="fluid right labeled icon inverted red ui button" style="margin-top:10px;" id="btnClearModel">
+                            <i class="trash alternate icon"></i>
+                            Clear Model
+                        </button>
+                        
+                    </div>
+
+                    <div id="kripkeDiv" style="margin-top:30px;">
+                        <h4 class="ui horizontal divider header">
+                            <i class="boxes icon"></i>
+                            Kripke Structure Generation
+                        </h4>
+    
+                        <div class="ui form">
+                            <div class="field">
+                                <textarea placeholder="Kripke Structure" rows="2" style="resize: none" id="textareaKripke"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="two ui buttons" style="margin-top:10px;">
+                            <button class="fluid labeled icon yellow ui button" id="">
+                                <i class="file alternate icon"></i>
+                                Load Model
+                            </button>
+                            <div class="or"></div>
+                            <button class="fluid right labeled icon teal ui button"id="">
+                                <i class="download icon"></i>
+                                Save Model
+                            </button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- GRAPH PANEL -->
+            <div class="eight wide column" style="background-color: #F5F5F5;">
+                <div id='sigma-container'></div>
+            </div>
+
+            <!-- LTL VERIFICATION PANEL -->
+            <div class="four wide column" style="padding-right: 30px">
+                <div style="padding-top: 20px;">
+                    <h2 class="ui icon center aligned header">
+                        <i class="rocket icon"></i>
+                        <div class="content">
+                            Property Verification Panel
+                            <div class="sub header">Verify and analyze your Linear Temporal Logic (LTL) properties here.</div>
+                        </div>
+                    </h2>
+
+                    <div id="inputDiv" style="margin-top:30px;">
+                        <h4 class="ui horizontal divider header">
+                            <i class="pencil alternate icon"></i>
+                            Input Property
+                        </h4>
+
+                        <div class="ui fluid labeled input" style="margin-top:10px;">
+                            <div class="ui label">
+                                Property
+                            </div>
+                            <input type="text" placeholder="Property">
+                        </div>
+
+                        <div class="five ui buttons" style="margin-top:10px">
+                            <button class="massive ui button" style="border-bottom: solid 1px black; border-right: solid 1px black;">
+                                U
+                            </button>
+                            <button class="massive fluid ui button" style="border-bottom: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
+                                ∧
+                            </button>
+                            <button class="massive fluid ui button" style="border-bottom: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
+                                ∨
+                            </button>
+                            <button class="massive fluid ui button" style="border-bottom: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
+                                →
+                            </button>
+                            <button class="massive fluid ui button" style="border-bottom: solid 1px black; border-left: solid 1px black;">
+                                ¬
+                            </button>
+                        </div>
+                        <div class="five ui buttons" style="margin-top:-0px">
+                            <button class="massive fluid ui button" style="border-top: solid 1px black; border-right: solid 1px black;">
+                                ♢
+                            </button>
+                            <button class="massive fluid ui button" style="border-top: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
+                                □
+                            </button>
+                            <button class="massive fluid ui button" style="border-top: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
+                                ◯
+                            </button>
+                            <button class="massive fluid ui button" style="border-top: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
+                                Ǝ
+                            </button>
+                            <button class="massive fluid ui button" style="border-top: solid 1px black; border-left: solid 1px black;">
+                                Ɐ
+                            </button>
+                        </div>
+
+                        <button class="fluid right labeled icon violet ui button" style="margin-top:10px;">
+                            <i class="cog icon"></i>
+                            Verify
+                        </button>
+                    </div>
+
+                    <div id="verificationDiv" style="margin-top:30px;">
+                        <h4 class="ui horizontal divider header">
+                            <i class="exclamation circle icon"></i>
+                            Verification Result
+                        </h4>
+                        
+                        <div class="ui fluid labeled input" style="margin-top:10px;">
+                            <div class="ui label">
+                                Output
+                            </div>
+                            <input type="text" placeholder="Result" disabled>
+                        </div>
+
+                        <div class="ui form" style="margin-top:10px;">
+                            <div class="field">
+                                <textarea placeholder="Analysis Result" rows="2" disabled style="resize: none" id="textareaAnalysis"></textarea>
+                            </div>
+                        </div>
+
+                        <button class="fluid right labeled icon teal ui button" style="margin-top:10px;">
+                            <i class="download icon"></i>
+                            Save Results
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </body>
+  </html>
