@@ -53,9 +53,15 @@ $(document).ready(function() {
     var y = randInt(Y_RANGE[0], Y_RANGE[1]);
 
     // Creating Outgoing Edge Link
-    var outgoingEdgeId = "e" + edgeIdx;
-    if (connectedTo == "None") {
-      outgoingEdgeId = "";
+    var outgoingEdgeId = [];
+    if (connectedTo != "") {
+      connectedTo = connectedTo.split(",");
+      for (var i = 0; i < connectedTo.length; i++) {
+        outgoingEdgeId.push(stateName + "_" + connectedTo[i]);
+      }
+    }
+    else {
+      connectedTo = [];
     }
     
     // Adding Node
@@ -67,12 +73,11 @@ $(document).ready(function() {
     }
     s.graph.addNode(node);
 
-    // Adding Edge
-    if (connectedTo != "None") {
-      var edge = {'id': outgoingEdgeId, 'source': stateName, 'target': connectedTo, 'size': EDGE_SIZE, 'color': EDGE_COLOR, 'type': EDGE_TYPE};
+    outgoingEdgeId.forEach(e => {
+      console.log(e);
+      var edge = {'id': e, 'source': e.split("_")[0], 'target': e.split("_")[1], 'size': EDGE_SIZE, 'color': EDGE_COLOR, 'type': EDGE_TYPE};
       s.graph.addEdge(edge);
-      edgeIdx++;
-    }
+    });
 
     clearNewStatePanel();
     stateNames.push(stateName);
@@ -92,6 +97,7 @@ $(document).ready(function() {
       ap = "Null";
     }
 
+    // Updating Node Properties
     clickedNode.isInitial = initialState;
     clickedNode.ap = ap;
     clickedNode.color = NODE_COLOR;
@@ -103,32 +109,69 @@ $(document).ready(function() {
     }
     clickedNodeColor = clickedNode.color;
 
-    if (clickedNode.connectedTo != connectedTo) {
-      if (clickedNode.outgoingEdgeId != "") {
-        var nodeExists = false
-        for (var i = 0; i < s.graph.edges().length; i++) {
-          if (clickedNode.outgoingEdgeId == s.graph.edges()[i].id) {
-            nodeExists = true;
-            break;
-          }
-        }
-        if (nodeExists == true) {
-          s.graph.dropEdge(clickedNode.outgoingEdgeId);
-        }
-        else {
-          clickedNode.outgoingEdgeId = "";
-        }
-      }
-      clickedNode.connectedTo = connectedTo;
-      clickedNode.outgoingEdgeId = "";
+    // Updating Edge Connections
+    // Deleting Old Edge Connections
+    clickedNode.outgoingEdgeId.forEach(id => {
+      // console.log(s.graph.edges().indexOf(id));
 
-      if (connectedTo != "None") {
-        clickedNode.outgoingEdgeId = "e" + edgeIdx;
-        var edge = {'id': clickedNode.outgoingEdgeId, 'source': clickedNode.stateName, 'target': clickedNode.connectedTo, 'size': EDGE_SIZE, 'color': EDGE_COLOR, 'type': EDGE_TYPE};
-        s.graph.addEdge(edge);
-        edgeIdx++;
+      s.graph.edges().forEach(old_edge => {
+        if (old_edge.id == id) {
+          s.graph.dropEdge(id);
+        }
+      })
+
+      // if (s.graph.edges().indexOf(id) > -1) {
+      //   s.graph.dropEdge(id);
+      //   console.log("Dropped");
+      // }
+    });
+
+    var outgoingEdgeId = [];
+    if (connectedTo != "") {
+      connectedTo = connectedTo.split(",");
+      for (var i = 0; i < connectedTo.length; i++) {
+        outgoingEdgeId.push(clickedNode.stateName + "_" + connectedTo[i]);
       }
     }
+    else {
+      connectedTo = [];
+    }
+
+    clickedNode.outgoingEdgeId = outgoingEdgeId;
+    clickedNode.connectedTo = connectedTo;
+
+    outgoingEdgeId.forEach(e => {
+      console.log(e);
+      var edge = {'id': e, 'source': e.split("_")[0], 'target': e.split("_")[1], 'size': EDGE_SIZE, 'color': EDGE_COLOR, 'type': EDGE_TYPE};
+      s.graph.addEdge(edge);
+    });
+    
+    // if (clickedNode.connectedTo != connectedTo) {
+    //   if (clickedNode.outgoingEdgeId != "") {
+    //     var nodeExists = false
+    //     for (var i = 0; i < s.graph.edges().length; i++) {
+    //       if (clickedNode.outgoingEdgeId == s.graph.edges()[i].id) {
+    //         nodeExists = true;
+    //         break;
+    //       }
+    //     }
+    //     if (nodeExists == true) {
+    //       s.graph.dropEdge(clickedNode.outgoingEdgeId);
+    //     }
+    //     else {
+    //       clickedNode.outgoingEdgeId = "";
+    //     }
+    //   }
+    //   clickedNode.connectedTo = connectedTo;
+    //   clickedNode.outgoingEdgeId = "";
+
+    //   if (connectedTo != "None") {
+    //     clickedNode.outgoingEdgeId = "e" + edgeIdx;
+    //     var edge = {'id': clickedNode.outgoingEdgeId, 'source': clickedNode.stateName, 'target': clickedNode.connectedTo, 'size': EDGE_SIZE, 'color': EDGE_COLOR, 'type': EDGE_TYPE};
+    //     s.graph.addEdge(edge);
+    //     edgeIdx++;
+    //   }
+    // }
 
     clearNodeSelection();
     s.refresh();
@@ -326,23 +369,20 @@ function enableModifyStatePanel() {
 function clearModifyStatePanel() {
   $("input[name=inputModifyStateName]").val("");
   $("#toggleDivModifyInitialState").checkbox("uncheck");
-  $("#dropdownDivModifyStateConnectedTo").dropdown('set selected', "None");
+  $("#dropdownDivModifyStateConnectedTo").dropdown('clear');
   $("input[name=inputModifyStateAP]").val("");
 }
 
 function clearNewStatePanel() {
   $("input[name=inputNewStateName]").val("");
   $("#toggleDivNewInitialState").checkbox("uncheck");
-  $("#dropdownDivNewStateConnectedTo").dropdown('set selected', "None");
+  $("#dropdownDivNewStateConnectedTo").dropdown('clear');
   $("input[name=inputNewStateAP]").val("");
 }
 
 function updateConnectedToDropdown() {
   $("#menuNewStateConnectedTo").empty();
   $("#menuModifyStateConnectedTo").empty();
-
-  $("#menuNewStateConnectedTo").append("<div class='item' data-value='None'>None</div>");
-  $("#menuModifyStateConnectedTo").append("<div class='item' data-value='None'>None</div>");
 
   stateNames.forEach(function(item, index) {
     $("#menuNewStateConnectedTo").append("<div class='item' data-value='" + item + "'>" + item + "</div>");
@@ -364,13 +404,10 @@ function isScrollbarVisible() {
 }
 
 function deleteFromArray(array, item) {
-  console.log(array);
   const index = array.indexOf(item);
   if (index > -1) {
     array.splice(index, 1);
   }
-  console.log(index, item);
-  console.log(array);
 }
 
 
