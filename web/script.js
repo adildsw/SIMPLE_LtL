@@ -109,23 +109,16 @@ $(document).ready(function() {
     }
     clickedNodeColor = clickedNode.color;
 
-    // Updating Edge Connections
     // Deleting Old Edge Connections
     clickedNode.outgoingEdgeId.forEach(id => {
-      // console.log(s.graph.edges().indexOf(id));
-
       s.graph.edges().forEach(old_edge => {
         if (old_edge.id == id) {
           s.graph.dropEdge(id);
         }
       })
-
-      // if (s.graph.edges().indexOf(id) > -1) {
-      //   s.graph.dropEdge(id);
-      //   console.log("Dropped");
-      // }
     });
 
+    // Adding New Edge Connections
     var outgoingEdgeId = [];
     if (connectedTo != "") {
       connectedTo = connectedTo.split(",");
@@ -141,37 +134,9 @@ $(document).ready(function() {
     clickedNode.connectedTo = connectedTo;
 
     outgoingEdgeId.forEach(e => {
-      console.log(e);
       var edge = {'id': e, 'source': e.split("_")[0], 'target': e.split("_")[1], 'size': EDGE_SIZE, 'color': EDGE_COLOR, 'type': EDGE_TYPE};
       s.graph.addEdge(edge);
     });
-    
-    // if (clickedNode.connectedTo != connectedTo) {
-    //   if (clickedNode.outgoingEdgeId != "") {
-    //     var nodeExists = false
-    //     for (var i = 0; i < s.graph.edges().length; i++) {
-    //       if (clickedNode.outgoingEdgeId == s.graph.edges()[i].id) {
-    //         nodeExists = true;
-    //         break;
-    //       }
-    //     }
-    //     if (nodeExists == true) {
-    //       s.graph.dropEdge(clickedNode.outgoingEdgeId);
-    //     }
-    //     else {
-    //       clickedNode.outgoingEdgeId = "";
-    //     }
-    //   }
-    //   clickedNode.connectedTo = connectedTo;
-    //   clickedNode.outgoingEdgeId = "";
-
-    //   if (connectedTo != "None") {
-    //     clickedNode.outgoingEdgeId = "e" + edgeIdx;
-    //     var edge = {'id': clickedNode.outgoingEdgeId, 'source': clickedNode.stateName, 'target': clickedNode.connectedTo, 'size': EDGE_SIZE, 'color': EDGE_COLOR, 'type': EDGE_TYPE};
-    //     s.graph.addEdge(edge);
-    //     edgeIdx++;
-    //   }
-    // }
 
     clearNodeSelection();
     s.refresh();
