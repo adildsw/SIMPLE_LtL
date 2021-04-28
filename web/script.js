@@ -80,52 +80,60 @@ $(document).ready(function() {
     clearNodeSelection();
     s.refresh();
 
-    $("#textareaKripke").val(generateKripkeStructure());
-    $("#textareaKripke").attr('disabled', true);
+    updateKripkeStructure();
   });
 
   // Modifying Selected State on Button Click
   $("#btnModifyState").on("click", function() {
-    var res = confirm("Are you sure you want to modify this state?");
-    if (res == true) {
-      var initialState = $("input[name=toggleModifyInitialState]").is(":checked");
-      var connectedTo = $("input[name=dropdownModifyStateConnectedTo]").val();
-      var ap = $("input[name=inputModifyStateAP]").val();
-      if (ap == "") {
-        ap = "Null";
-      }
+    var initialState = $("input[name=toggleModifyInitialState]").is(":checked");
+    var connectedTo = $("input[name=dropdownModifyStateConnectedTo]").val();
+    var ap = $("input[name=inputModifyStateAP]").val();
+    if (ap == "") {
+      ap = "Null";
+    }
 
-      clickedNode.isInitial = initialState;
-      clickedNode.ap = ap;
-      clickedNode.color = NODE_COLOR;
-      clickedNode.label = clickedNode.stateName + " | " + ap;
-      clickedNode.size = NODE_SIZE;
-      if (initialState == true) {
-        clickedNode.color = NODE_INIT_COLOR;
-        clickedNode.size = NODE_INIT_SIZE;
-      }
-      clickedNodeColor = clickedNode.color;
+    clickedNode.isInitial = initialState;
+    clickedNode.ap = ap;
+    clickedNode.color = NODE_COLOR;
+    clickedNode.label = clickedNode.stateName + " | " + ap;
+    clickedNode.size = NODE_SIZE;
+    if (initialState == true) {
+      clickedNode.color = NODE_INIT_COLOR;
+      clickedNode.size = NODE_INIT_SIZE;
+    }
+    clickedNodeColor = clickedNode.color;
 
-      if (clickedNode.connectedTo != connectedTo) {
-        if (clickedNode.outgoingEdgeId != "") {
+    if (clickedNode.connectedTo != connectedTo) {
+      if (clickedNode.outgoingEdgeId != "") {
+        var nodeExists = false
+        for (var i = 0; i < s.graph.edges().length; i++) {
+          if (clickedNode.outgoingEdgeId == s.graph.edges()[i].id) {
+            nodeExists = true;
+            break;
+          }
+        }
+        if (nodeExists == true) {
           s.graph.dropEdge(clickedNode.outgoingEdgeId);
         }
-        clickedNode.connectedTo = connectedTo;
-        clickedNode.outgoingEdgeId = "";
-
-        if (connectedTo != "None") {
-          clickedNode.outgoingEdgeId = "e" + edgeIdx;
-          var edge = {'id': clickedNode.outgoingEdgeId, 'source': clickedNode.stateName, 'target': clickedNode.connectedTo, 'size': EDGE_SIZE, 'color': EDGE_COLOR, 'type': EDGE_TYPE};
-          s.graph.addEdge(edge);
-          edgeIdx++;
+        else {
+          clickedNode.outgoingEdgeId = "";
         }
       }
+      clickedNode.connectedTo = connectedTo;
+      clickedNode.outgoingEdgeId = "";
 
-      clearNodeSelection();
-      s.refresh();
-      
-      $("#textareaKripke").val(generateKripkeStructure());
+      if (connectedTo != "None") {
+        clickedNode.outgoingEdgeId = "e" + edgeIdx;
+        var edge = {'id': clickedNode.outgoingEdgeId, 'source': clickedNode.stateName, 'target': clickedNode.connectedTo, 'size': EDGE_SIZE, 'color': EDGE_COLOR, 'type': EDGE_TYPE};
+        s.graph.addEdge(edge);
+        edgeIdx++;
+      }
     }
+
+    clearNodeSelection();
+    s.refresh();
+    
+    updateKripkeStructure();
   });
 
   // Deleting Selected State on Button Click
@@ -133,11 +141,13 @@ $(document).ready(function() {
     var res = confirm("Are you sure you want to delete this state and all the edges associated with it?");
     if (res == true) {
       var stateName = clickedNode.stateName;
-      stateNames = deleteFromArray(stateNames, stateName);
+      deleteFromArray(stateNames, stateName);
       clearNodeSelection();
       s.graph.dropNode(stateName);
       updateConnectedToDropdown();
       s.refresh();
+
+      updateKripkeStructure();
     }
   });
 
@@ -151,6 +161,8 @@ $(document).ready(function() {
         stateNames.length = 0;
         updateConnectedToDropdown();
         s.refresh();
+
+        updateKripkeStructure();
       }
     }
     else {
@@ -265,6 +277,11 @@ $(document).ready(function() {
     return str;
   }
 
+  function updateKripkeStructure() {
+    $("#textareaKripke").val(generateKripkeStructure());
+    $("#textareaKripke").attr('disabled', true);
+  }
+
   // Handling Textarea Height Dynamically On Resize Event
   $(window).resize(function() {
     autoResizeTextarea();
@@ -347,22 +364,13 @@ function isScrollbarVisible() {
 }
 
 function deleteFromArray(array, item) {
-  var idx = -1
-  for (var i = 0; i < array.length; i++) {
-    if (array[i] == item) {
-      idx = i;
-      break;
-    }
+  console.log(array);
+  const index = array.indexOf(item);
+  if (index > -1) {
+    array.splice(index, 1);
   }
-
-  if (idx != -1) {
-    for (var i = idx; i < array.lenth - 1; i++) {
-      array[i] = array[i + 1];
-    }
-    array.pop();
-  }
-
-  return array;
+  console.log(index, item);
+  console.log(array);
 }
 
 
