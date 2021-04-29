@@ -8,6 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"/>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/sigma.core.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/conrad.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/src/utils/sigma.utils.js"></script>
@@ -200,12 +202,13 @@
                         </div>
 
                         <div class="two ui buttons" style="margin-top:10px;">
-                            <button class="fluid labeled icon yellow ui button" id="">
+                            <input type="file" id="fileLoader" accept=".simpleltl" hidden>
+                            <button class="fluid labeled icon yellow ui button" id="btnLoadModel">
                                 <i class="file alternate icon"></i>
                                 Load Model
                             </button>
                             <div class="or"></div>
-                            <button class="fluid right labeled icon teal ui button"id="">
+                            <button class="fluid right labeled icon teal ui button"id="btnSaveModel">
                                 <i class="download icon"></i>
                                 Save Model
                             </button>

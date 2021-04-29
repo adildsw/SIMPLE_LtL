@@ -178,6 +178,30 @@ $(document).ready(function() {
     }
   });
 
+  // Saving Model on Button Click
+  $("#btnSaveModel").on("click", function() {
+    var kripkeString = generateKripkeStructure();
+    var blob = new Blob([kripkeString], {type: "text/plain;charset=utf-8"});
+    var a = document.createElement('a');
+    a.download = "model.simpleltl";
+    a.href = URL.createObjectURL(blob);
+    a.dataset.downloadurl = ["text/plain", a.download, a.href].join(':');
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+
+  // Loading Model on Button Click
+  $("#btnLoadModel").on("click", function() {
+    $("#fileLoader").click();
+  });
+
+  // Triggering File Open Dialog
+  $("#fileLoader").on("change", function() {
+    loadModelFromFile(this.files[0]);
+  })
+
   // Initializing Graph Component
   var s = new sigma(
     {
@@ -278,13 +302,14 @@ $(document).ready(function() {
     });
 
     s.graph.edges().forEach(edge => {
-      R.push("(" + edge.source + "," + edge.target + ")");
+      R.push("(" + edge.source + "|" + edge.target + ")");
     });
 
     str = "S=" + S.toString() + "\nS0=" + S0.toString() + "\nR=" + R.toString() + "\nL=" + L.toString();
     return str;
   }
 
+  // Function for Fetching Kripke Structure and Updating Textarea
   function updateKripkeStructure() {
     $("#textareaKripke").val(generateKripkeStructure());
     $("#textareaKripke").attr('disabled', true);
@@ -295,7 +320,124 @@ $(document).ready(function() {
     autoResizeTextarea();
   })
 
+  // Function to Load Model From File
+  async function loadModelFromFile(file) {
+    var data = await file.text();
+    data = data.split("\n");
+    
+    // Segregating and Preprocessing Kripke Structure Components
+    var S = data[0].substring(2, data[0].length).split(",");
+    var S0 = data[1].substring(3, data[1].length).split(",");
+    var R = data[2].substring(2, data[2].length).split(",");
+    var L = data[3].substring(2, data[3].length).split(",");
+
+    // Cleaning Node Connections
+    var R_temp = []
+    R.forEach(item => {
+      R_temp.push(item.substring(1, item.length - 1));
+    });
+    R = R_temp;
+
+    // Cleaning Atomic Proposition Assignments
+    var L_temp = [];
+    var temp = "";
+    L.forEach(item => {
+      if (item.startsWith("(")) {
+        temp = item;
+      }
+      else {
+        temp = temp + "," + item;
+      }
+
+      if (item.endsWith(")")) {
+        L_temp.push(temp.substring(1, temp.length - 1));
+      }
+    });
+    L = L_temp;
+
+    var nodes = [];
+    var edges = [];
+
+    // Extracting Node Parameters
+    S.forEach(stateName => {
+      var ap = "";
+      var connectedTo = [];
+      var outgoingEdgeId = [];
+      var x = randInt(X_RANGE[0], X_RANGE[1]);
+      var y = randInt(Y_RANGE[0], Y_RANGE[1]);
+      var color = NODE_COLOR;
+      var size = NODE_SIZE;
+      var isInitial = false;
+
+      for (var i = 0; i < L.length; i++) {
+        if (L[i].split("|")[0] == stateName) {
+          ap = L[i].split("|")[1];
+          break;
+        }
+      }
+
+      for (var i = 0; i < R.length; i++) {
+        if (R[i].split("|")[0] == stateName) {
+          connectedTo.push(R[i].split("|")[1]);
+          outgoingEdgeId.push(R[i].split("|").join("_"));
+        }
+      }
+
+      if (S0.indexOf(stateName) != -1) {
+        color = NODE_INIT_COLOR;
+        size = NODE_INIT_SIZE;
+        isInitial = true;
+      }
+
+      var node = {'id': stateName, 'stateName': stateName, 'ap': ap, 'label': stateName + "|" + ap, 'connectedTo': connectedTo, 'outgoingEdgeId': outgoingEdgeId, 'x': x, 'y': y, 'size': size, 'color': color, 'isInitial': isInitial, 'isClicked': false};
+      nodes.push(node);
+    });
+
+    // Extracting Edge Parameters
+    R.forEach(item => {
+      var edge = {'id': item.split("|").join("_"), 'source': item.split("|")[0], 'target': item.split("|")[1], 'size': EDGE_SIZE, 'color': EDGE_COLOR, 'type': EDGE_TYPE};
+      edges.push(edge);
+    });
+
+    // Clearing Pre-existing Model
+    var loadFlag = true;
+    if (s.graph.nodes().length > 0) {
+      var res = confirm("Loading this model will clear the pre-existing model. Are you sure you want to continue?");
+      if (res == true) {
+        s.graph.clear();
+
+        stateNames.length = 0;
+        updateConnectedToDropdown();
+      }
+      else {
+        loadFlag = false;
+      }
+    }
+
+    // Loading Model from File
+    if (loadFlag == true) {
+      s.graph.read({'nodes': nodes, 'edges': edges});
+      s.refresh();
+
+      updateConnectedToDropdown();
+      updateKripkeStructure();
+    }
+    
+  }
+
+  // Function for Updating ConnectedTo Dropdowns with StateNames
+  function updateConnectedToDropdown() {
+    $("#menuNewStateConnectedTo").empty();
+    $("#menuModifyStateConnectedTo").empty();
+  
+    s.graph.nodes().forEach(item => {
+      $("#menuNewStateConnectedTo").append("<div class='item' data-value='" + item.stateName + "'>" + item.stateName + "</div>");
+      $("#menuModifyStateConnectedTo").append("<div class='item' data-value='" + item.stateName + "'>" + item.stateName + "</div>");
+    });
+  }
+
 });
+
 
 function autoResizeTextarea() {
   if (document.body.clientHeight > 900) {
@@ -345,16 +487,6 @@ function clearNewStatePanel() {
   $("input[name=inputNewStateAP]").val("");
 }
 
-function updateConnectedToDropdown() {
-  $("#menuNewStateConnectedTo").empty();
-  $("#menuModifyStateConnectedTo").empty();
-
-  stateNames.forEach(function(item, index) {
-    $("#menuNewStateConnectedTo").append("<div class='item' data-value='" + item + "'>" + item + "</div>");
-    $("#menuModifyStateConnectedTo").append("<div class='item' data-value='" + item + "'>" + item + "</div>");
-  });
-}
-
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -374,20 +506,5 @@ function deleteFromArray(array, item) {
     array.splice(index, 1);
   }
 }
-
-
-
-// var graph = {
-//   nodes: [
-//     { id: "n0", label: "A node", x: 0, y: 1, size: 3, color: '#008cc2' },
-//     { id: "n1", label: "Another node", x: 3, y: 1, size: 2, color: '#008cc2' },
-//     { id: "n2", label: "And a last one", x: 1, y: 3, size: 1, color: '#E57821' }
-//   ],
-//   edges: [
-//     { id: "e0", source: "n0", target: "n1", color: '#282c34', type: 'line', size: 0.5 },
-//     { id: "e1", source: "n1", target: "n2", color: '#282c34', type: 'curve', size: 1 },
-//     { id: "e2", source: "n2", target: "n0", color: '#FF0000', type: 'line', size: 2 }
-//   ]
-// }
 
 
