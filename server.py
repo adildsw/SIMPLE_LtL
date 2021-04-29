@@ -1,10 +1,13 @@
-import collections
+import json
 
 from flask import Flask, Response, request, render_template
 from pyModelChecking import Kripke
 from pyModelChecking.LTL import *
 
+from parser import Parser
+
 app = Flask(__name__, static_folder="web/", template_folder="web/")
+parser = Parser()
 
 @app.route("/")
 @app.route("/index")
@@ -13,14 +16,14 @@ def home():
 
 @app.route("/verify", methods=["POST"])
 def verify():
-    data = request.args
+    data = request.form
 
     if "kripke" not in data:
         return Response(
             "Bad request. Missing `kripke` input.",
             status=400,
         )
-    if "ltl_formula" not in data:
+    if "formula" not in data:
         return Response(
             "Bad request. Missing `ltl_formula` input.",
             status=400,
@@ -28,8 +31,7 @@ def verify():
 
     kripke_args = data["kripke"]
     K = Kripke(**kripke_args)
-    parser = Parser()
-    ltl_formula = parser(data["ltl_formula"])
+    ltl_formula = parser(data["formula"])
 
     # Post-order traversal
     formulas = []

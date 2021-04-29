@@ -52,6 +52,7 @@
         src="https://cdn.jsdelivr.net/npm/sigma@1.2.1/plugins/sigma.plugins.dragNodes/sigma.plugins.dragNodes.js"></script>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
 
     <style>
         html {
@@ -254,41 +255,41 @@
                         <div class="ui label">
                             Property
                         </div>
-                        <input type="text" placeholder="Property">
+                        <input type="text" placeholder="Property" id="formula">
                     </div>
 
                     <div class="five ui buttons" style="margin-top:10px">
-                        <button class="massive ui button"
+                        <button class="massive ui button formula_symbol"
                             style="border-bottom: solid 1px black; border-right: solid 1px black;">
                             U
                         </button>
-                        <button class="massive fluid ui button"
+                        <button class="massive fluid ui button formula_symbol"
                             style="border-bottom: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
                             ∧
                         </button>
-                        <button class="massive fluid ui button"
+                        <button class="massive fluid ui button formula_symbol"
                             style="border-bottom: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
                             ∨
                         </button>
-                        <button class="massive fluid ui button"
+                        <button class="massive fluid ui button formula_symbol"
                             style="border-bottom: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
                             →
                         </button>
-                        <button class="massive fluid ui button"
+                        <button class="massive fluid ui button formula_symbol"
                             style="border-bottom: solid 1px black; border-left: solid 1px black;">
                             ¬
                         </button>
                     </div>
                     <div class="five ui buttons" style="margin-top:-0px">
-                        <button class="massive fluid ui button"
+                        <button class="massive fluid ui button formula_symbol"
                             style="border-top: solid 1px black; border-right: solid 1px black;">
                             ♢
                         </button>
-                        <button class="massive fluid ui button"
+                        <button class="massive fluid ui button formula_symbol"
                             style="border-top: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
                             □
                         </button>
-                        <button class="massive fluid ui button"
+                        <button class="massive fluid ui button formula_symbol"
                             style="border-top: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
                             ◯
                         </button>
@@ -302,7 +303,7 @@
                         </button>
                     </div>
 
-                    <button class="fluid right labeled icon violet ui button" style="margin-top:10px;">
+                    <button class="fluid right labeled icon violet ui button" id="verify_button" style="margin-top:10px;">
                         <i class="cog icon"></i>
                         Verify
                     </button>

@@ -295,6 +295,42 @@ $(document).ready(function() {
     autoResizeTextarea();
   })
 
+  $(".formula_symbol").click(writeFormulaSymbol);
+  $("#verify_button").click(verify);
+
+  function writeFormulaSymbol() {
+    var formula = document.getElementById("formula");
+    var cursorStart = formula.selectionStart;
+    var cursorEnd = formula.selectionEnd;
+    var symbol = $(this).html().trim();
+    formula.value = formula.value.substring(0, cursorStart) + symbol + formula.value.substring(cursorEnd, formula.value.length);
+  }
+  
+  function verify(){
+    //TODO: Is this the right way to get Kripke structure?
+    var kripke = generateKripkeStructure()
+    var formula = document.getElementById("formula").value;
+    console.log(formula)
+    console.log(kripke)
+    var data = {
+      "kripke": kripke,
+      "formula": formula
+    }
+    $.ajax({
+      type: "POST",
+      url: "verify",
+      data: data,
+      success: display_results,
+      dataType: "json",
+      content_type: "application/json"
+    });
+  }
+  
+  function display_results(result) {
+    var verification_results = result["results"]
+    console.log(verification_results)
+  }
+
 });
 
 function autoResizeTextarea() {
