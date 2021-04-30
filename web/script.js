@@ -302,7 +302,7 @@ $(document).ready(function() {
     });
 
     s.graph.edges().forEach(edge => {
-      R.push("(" + edge.source + "|" + edge.target + ")");
+      R.push("(" + edge.source + "_" + edge.target + ")");
     });
 
     str = "S=" + S.toString() + "\nS0=" + S0.toString() + "\nR=" + R.toString() + "\nL=" + L.toString();
@@ -332,11 +332,9 @@ $(document).ready(function() {
   }
   
   function verify(){
-    //TODO: Is this the right way to get Kripke structure?
-    var kripke = generateKripkeStructure()
+    var kripke = generateKripkeStructure();
+    kripke = JSON.stringify(preprocessKripkeString(kripke));
     var formula = document.getElementById("formula").value;
-    console.log(formula)
-    console.log(kripke)
     var data = {
       "kripke": kripke,
       "formula": formula
@@ -352,25 +350,23 @@ $(document).ready(function() {
   }
   
   function display_results(result) {
-    var verification_results = result["results"]
-    console.log(verification_results)
+    console.log(result);
   }
-  
-  // Function to Load Model From File
-  async function loadModelFromFile(file) {
-    var data = await file.text();
-    data = data.split("\n");
-    
+
+  function preprocessKripkeString(kripkeString) {
+    kripkeString = kripkeString.split("\n");
+
     // Segregating and Preprocessing Kripke Structure Components
-    var S = data[0].substring(2, data[0].length).split(",");
-    var S0 = data[1].substring(3, data[1].length).split(",");
-    var R = data[2].substring(2, data[2].length).split(",");
-    var L = data[3].substring(2, data[3].length).split(",");
+    var S = kripkeString[0].substring(2, kripkeString[0].length).split(",");
+    var S0 = kripkeString[1].substring(3, kripkeString[1].length).split(",");
+    var R = kripkeString[2].substring(2, kripkeString[2].length).split(",");
+    var L = kripkeString[3].substring(2, kripkeString[3].length).split(",");
 
     // Cleaning Node Connections
     var R_temp = []
     R.forEach(item => {
-      R_temp.push(item.substring(1, item.length - 1));
+      item = item.substring(1, item.length - 1);
+      R_temp.push(item);
     });
     R = R_temp;
 
@@ -390,6 +386,19 @@ $(document).ready(function() {
       }
     });
     L = L_temp;
+
+    return {'S': S, 'S0': S0, 'R': R, 'L': L};
+  }
+  
+  // Function to Load Model From File
+  async function loadModelFromFile(file) {
+    var data = await file.text();
+
+    data = preprocessKripkeString(data);
+    var S = data.S;
+    var S0 = data.S0;
+    var R = data.R;
+    var L = data.L;
 
     var nodes = [];
     var edges = [];
@@ -413,9 +422,9 @@ $(document).ready(function() {
       }
 
       for (var i = 0; i < R.length; i++) {
-        if (R[i].split("|")[0] == stateName) {
-          connectedTo.push(R[i].split("|")[1]);
-          outgoingEdgeId.push(R[i].split("|").join("_"));
+        if (R[i].split("_")[0] == stateName) {
+          connectedTo.push(R[i].split("_")[1]);
+          outgoingEdgeId.push(R[i]);
         }
       }
 
@@ -431,7 +440,7 @@ $(document).ready(function() {
 
     // Extracting Edge Parameters
     R.forEach(item => {
-      var edge = {'id': item.split("|").join("_"), 'source': item.split("|")[0], 'target': item.split("|")[1], 'size': EDGE_SIZE, 'color': EDGE_COLOR, 'type': EDGE_TYPE};
+      var edge = {'id': item, 'source': item.split("_")[0], 'target': item.split("_")[1], 'size': EDGE_SIZE, 'color': EDGE_COLOR, 'type': EDGE_TYPE};
       edges.push(edge);
     });
 
