@@ -1,5 +1,5 @@
 from lark import Lark, Transformer
-from pyModelChecking.LTL import *
+from pyModelChecking.CTL import *
 
 GRAMMAR = r"""
     ?value: "true"          -> true
@@ -13,6 +13,7 @@ GRAMMAR = r"""
         | value "→" value   -> implies_formula
         | "♢" value         -> eventually_formula
         | "□" value         -> always_formula
+        | "(" value ")"     -> parent_formula
 
     ap: /[a-zA-Z_][a-zA-Z_0-9]*/
         | ESCAPED_STRING
@@ -40,10 +41,10 @@ class LTLTransformer(Transformer):
         return Or(*subformulas)
     
     def not_formula(self, subformula):
-        return Not(subformula)
+        return Not(*subformula)
 
     def next_formula(self, subformula):
-        return X(subformula)
+        return X(*subformula)
 
     def until_formula(self, subformulas):
         return U(*subformulas)
@@ -52,10 +53,13 @@ class LTLTransformer(Transformer):
         return Imply(*subformulas)
 
     def eventually_formula(self, subformula):
-        return F(subformula)
+        return F(*subformula)
 
     def always_formula(self, subformula):
-        return G(subformula)
+        return G(*subformula)
+    
+    def parent_formula(self, subformula):
+        return subformula[0]
 
     def true(self):
         return Bool(True)
