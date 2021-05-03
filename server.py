@@ -93,7 +93,7 @@ def parseKripkeString(kripkeString):
         ap = item.split("|")[1]
         if (ap == "Null"):
             continue
-        L[stateName] = set(ap.split(","))
+        L[stateName] = set([w.strip() for w in ap.split(",")])
     
     return Kripke(S, S0, R, L)
     
