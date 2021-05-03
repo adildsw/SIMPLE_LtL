@@ -101,7 +101,7 @@ def parseKripkeString(kripkeString):
 def main():
     ip = "127.0.0.1"
     port = 5000
-    app.run(ip, port, debug=True)
+    app.run(ip, port, debug=False)
 
 if __name__ == "__main__":
     main()
