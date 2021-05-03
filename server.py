@@ -42,12 +42,11 @@ def verify():
     try:
         ltl_formula = parser(data["formula"])
     except:
-        print("ok")
         return Response(
             "ERROR: Invalid Formula. Please enter a valid formula.",
             status=400,
         )
-
+    
     # Post-order traversal
     formulas = []
     def postorder(current):

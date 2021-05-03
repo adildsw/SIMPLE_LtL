@@ -15,7 +15,7 @@ GRAMMAR = r"""
         | "□" value         -> always_formula
         | "(" value ")"     -> parent_formula
 
-    ap: /[a-zA-Z_][a-zA-Z_0-9]*/
+    ap: /[a-zA-TV-Z_][a-zA-TV-Z_0-9]*/
         | ESCAPED_STRING
 
     %import common.ESCAPED_STRING
