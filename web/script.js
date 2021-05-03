@@ -171,6 +171,7 @@ $(document).ready(function() {
         s.refresh();
 
         updateKripkeStructure();
+        clearResultPanel();
       }
     }
     else {
@@ -180,16 +181,21 @@ $(document).ready(function() {
 
   // Saving Model on Button Click
   $("#btnSaveModel").on("click", function() {
-    var kripkeString = generateKripkeStructure();
-    var blob = new Blob([kripkeString], {type: "text/plain;charset=utf-8"});
-    var a = document.createElement('a');
-    a.download = "model.simpleltl";
-    a.href = URL.createObjectURL(blob);
-    a.dataset.downloadurl = ["text/plain", a.download, a.href].join(':');
-    a.style.display = "none";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    if (s.graph.nodes().length != 0) {
+      var kripkeString = generateKripkeStructure();
+      var blob = new Blob([kripkeString], {type: "text/plain;charset=utf-8"});
+      var a = document.createElement('a');
+      a.download = "model.simpleltl";
+      a.href = URL.createObjectURL(blob);
+      a.dataset.downloadurl = ["text/plain", a.download, a.href].join(':');
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+    else {
+      alert("ERROR: There is no kripke structure to save.");
+    }
   });
 
   // Loading Model on Button Click
@@ -201,6 +207,28 @@ $(document).ready(function() {
   $("#fileLoader").on("change", function() {
     loadModelFromFile(this.files[0]);
   })
+
+  // Saving Result on Button Click
+  $("#btnSaveResult").on("click", function() {
+    var kripkeString = generateKripkeStructure();
+    var formulaString = $("#formula").val();
+    var resultString = $("#textareaAnalysis").val();
+    if (resultString != "") {
+      var finalString = "MODEL DEFINITION\n--------------------\n" + kripkeString + "\n\nFORMULA\n--------------------\n" + formulaString + "\n\nANALYSIS\n--------------------\n" + resultString;
+      var blob = new Blob([finalString], {type: "text/plain;charset=utf-8"});
+      var a = document.createElement('a');
+      a.download = "result.txt";
+      a.href = URL.createObjectURL(blob);
+      a.dataset.downloadurl = ["text/plain", a.download, a.href].join(':');
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+    else {
+      alert("ERROR: There is no result to save.")
+    }
+  });
 
   // Initializing Graph Component
   var s = new sigma(
@@ -312,7 +340,6 @@ $(document).ready(function() {
   // Function for Fetching Kripke Structure and Updating Textarea
   function updateKripkeStructure() {
     $("#textareaKripke").val(generateKripkeStructure());
-    $("#textareaKripke").attr('disabled', true);
   }
 
   // Handling Textarea Height Dynamically On Resize Event
@@ -320,18 +347,17 @@ $(document).ready(function() {
     autoResizeTextarea();
   })
 
-  $(".formula_symbol").click(writeFormulaSymbol);
-  $("#verify_button").click(verify);
-
-  function writeFormulaSymbol() {
+  $(".formula_symbol").on("click", function() {
     var formula = document.getElementById("formula");
     var cursorStart = formula.selectionStart;
     var cursorEnd = formula.selectionEnd;
     var symbol = $(this).html().trim();
     formula.value = formula.value.substring(0, cursorStart) + symbol + formula.value.substring(cursorEnd, formula.value.length);
-  }
+  });
   
-  function verify(){
+  $("#btnVerify").on("click", function() {
+    clearResultPanel();
+
     var kripke = generateKripkeStructure();
     kripke = JSON.stringify(preprocessKripkeString(kripke));
     var formula = document.getElementById("formula").value;
@@ -343,14 +369,53 @@ $(document).ready(function() {
       type: "POST",
       url: "verify",
       data: data,
-      success: display_results,
+      error: function(xhr, status, error) {
+        alert(xhr.responseText);
+      },
+      success: displayResults,
       dataType: "json",
       content_type: "application/json"
     });
-  }
+  });
   
-  function display_results(result) {
-    console.log(result);
+  function displayResults(result) {
+    var analysisString = "";
+    var idx = 0;
+
+    result.forEach(res => {
+      analysisString += "SUBFORMULA #" + idx + ": " + res[0] + "\n";
+
+      if (res[2].length == 1) {
+        analysisString += "Only state " + res[2] + " satisfies this formula.\n";
+      }
+      else if (res[2].length > 0) {
+        analysisString += res[2].length + " states satisfy this formula: " + res[2] + "\n";
+      }
+      else {
+        analysisString += "No states satisfy this formula.\n"
+      }
+
+      if (res[1] == true) {
+        analysisString += "All initial states satisfy this formula.\n\n";
+      }
+      else {
+        analysisString += "All initial states DO NOT satisfy this formula.\n\n";
+      }
+      idx++;
+    });
+
+    if (result[result.length - 1][1] == true) {
+      $("#inputResult").val("This formula is satisfied by all the initial states.");
+      $("#divOutput").removeClass("red");
+      $("#divOutput").addClass("green");
+    }
+    else {
+      $("#inputResult").val("This formula is NOT satisfied by all the initial states.");
+      $("#divOutput").addClass("red");
+      $("#divOutput").removeClass("green");
+    }
+    
+    $("#textareaAnalysis").val(analysisString);
   }
 
   function preprocessKripkeString(kripkeString) {
@@ -453,6 +518,7 @@ $(document).ready(function() {
 
         stateNames.length = 0;
         updateConnectedToDropdown();
+        clearResultPanel();
       }
       else {
         loadFlag = false;
@@ -532,6 +598,13 @@ function clearNewStatePanel() {
   $("input[name=inputNewStateAP]").val("");
 }
 
+function clearResultPanel() {
+  $("#textareaAnalysis").val("");
+  $("#inputResult").val("");
+  $("#divOutput").removeClass("red");
+  $("#divOutput").removeClass("green");
+}
+
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -552,4 +625,15 @@ function deleteFromArray(array, item) {
   }
 }
 
-
+$.fn.getRequest = function(url, callback) {
+  var http = new XMLHttpRequest();
+  http.open("GET", url, true);
+  http.onreadystatechange = function() {
+      if(this.readyState == 4 && this.status == 200) {
+          if (callback != null) {
+              callback(this.responseText);
+          }
+      }
+  }
+  http.send(null);
+}

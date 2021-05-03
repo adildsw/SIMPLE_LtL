@@ -31,8 +31,22 @@ def verify():
             status=400,
         ) 
 
-    K = parseKripkeString(data["kripke"])
-    ltl_formula = parser(data["formula"])
+    try:
+        K = parseKripkeString(data["kripke"])
+    except:
+        return Response(
+            "ERROR: Invalid Kripke Structure. Please ensure there exists a Kripke structure with infinite paths.",
+            status=400,
+        )
+
+    try:
+        ltl_formula = parser(data["formula"])
+    except:
+        print("ok")
+        return Response(
+            "ERROR: Invalid Formula. Please enter a valid formula.",
+            status=400,
+        )
 
     # Post-order traversal
     formulas = []
@@ -47,15 +61,21 @@ def verify():
     postorder(ltl_formula)
 
     init_states = K.S0
-    verfication_results = []
+    verification_results = []
     for formula in formulas:
         sat_set = modelcheck(K, A(formula))
         satisfy = init_states <= sat_set
-        verfication_results.append((str(formula), satisfy, sat_set))
+        verification_results.append((str(formula), satisfy, sat_set))
 
-    print(K)
-    print(str({"results": verfication_results}))
-    return str({"results": verfication_results})
+    print(verification_results)
+
+    for idx, item in enumerate(verification_results):
+        item = list(item)
+        item[2] = list(item[2])
+        verification_results[idx] = list(item)
+
+    return jsonify(verification_results)
+    # return jsonify("Hello")
 
 def parseKripkeString(kripkeString):
     kripkeString = json.loads(kripkeString)

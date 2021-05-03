@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>CPS Project</title>
+    <title>SIMPLE LtL</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
@@ -209,7 +209,7 @@
 
                     <div class="ui form">
                         <div class="field">
-                            <textarea placeholder="Kripke Structure" rows="2" style="resize: none"
+                            <textarea placeholder="Kripke Structure" rows="2" style="resize: none" readonly
                                 id="textareaKripke"></textarea>
                         </div>
                     </div>
@@ -243,8 +243,8 @@
                 <h2 class="ui icon center aligned header">
                     <i class="rocket icon"></i>
                     <div class="content">
-                        Property Verification Panel
-                        <div class="sub header">Verify and analyze your Linear Temporal Logic (LTL) properties here.
+                        Formula Verification Panel
+                        <div class="sub header">Verify and analyze your Linear Temporal Logic (LTL) formulas here.
                         </div>
                     </div>
                 </h2>
@@ -252,17 +252,17 @@
                 <div id="inputDiv" style="margin-top:30px;">
                     <h4 class="ui horizontal divider header">
                         <i class="pencil alternate icon"></i>
-                        Input Property
+                        Input Formula
                     </h4>
 
                     <div class="ui fluid labeled input" style="margin-top:10px;">
                         <div class="ui label">
-                            Property
+                            Formula
                         </div>
-                        <input type="text" placeholder="Property" id="formula">
+                        <input type="text" placeholder="Formula" id="formula">
                     </div>
 
-                    <div class="five ui buttons" style="margin-top:10px">
+                    <div class="four ui buttons" style="margin-top:10px">
                         <button class="massive ui button formula_symbol"
                             style="border-bottom: solid 1px black; border-right: solid 1px black;">
                             U
@@ -276,15 +276,15 @@
                             ∨
                         </button>
                         <button class="massive fluid ui button formula_symbol"
-                            style="border-bottom: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
+                            style="border-bottom: solid 1px black; border-left: solid 1px black;">
                             →
                         </button>
+                    </div>
+                    <div class="four ui buttons" style="margin-top:-0px">
                         <button class="massive fluid ui button formula_symbol"
-                            style="border-bottom: solid 1px black; border-left: solid 1px black;">
+                            style="border-top: solid 1px black; border-right: solid 1px black;">
                             ¬
                         </button>
-                    </div>
-                    <div class="five ui buttons" style="margin-top:-0px">
                         <button class="massive fluid ui button formula_symbol"
                             style="border-top: solid 1px black; border-right: solid 1px black;">
                             ♢
@@ -294,20 +294,12 @@
                             □
                         </button>
                         <button class="massive fluid ui button formula_symbol"
-                            style="border-top: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
-                            ◯
-                        </button>
-                        <button class="massive fluid ui button"
-                            style="border-top: solid 1px black; border-left: solid 1px black; border-right: solid 1px black;">
-                            Ǝ
-                        </button>
-                        <button class="massive fluid ui button"
                             style="border-top: solid 1px black; border-left: solid 1px black;">
-                            Ɐ
+                            ◯
                         </button>
                     </div>
 
-                    <button class="fluid right labeled icon violet ui button" id="verify_button" style="margin-top:10px;">
+                    <button class="fluid right labeled icon violet ui button" id="btnVerify" style="margin-top:10px;">
                         <i class="cog icon"></i>
                         Verify
                     </button>
@@ -320,20 +312,20 @@
                     </h4>
 
                     <div class="ui fluid labeled input" style="margin-top:10px;">
-                        <div class="ui label">
+                        <div class="ui label" id="divOutput">
                             Output
                         </div>
-                        <input type="text" placeholder="Result" disabled>
+                        <input type="text" placeholder="Result" id="inputResult" readonly>
                     </div>
 
                     <div class="ui form" style="margin-top:10px;">
                         <div class="field">
-                            <textarea placeholder="Analysis Result" rows="2" disabled style="resize: none"
+                            <textarea placeholder="Analysis Result" rows="2" readonly style="resize: none"
                                 id="textareaAnalysis"></textarea>
                         </div>
                     </div>
 
-                    <button class="fluid right labeled icon teal ui button" style="margin-top:10px;">
+                    <button class="fluid right labeled icon teal ui button" style="margin-top:10px;" id="btnSaveResult">
                         <i class="download icon"></i>
                         Save Results
                     </button>

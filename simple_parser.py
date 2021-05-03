@@ -1,5 +1,5 @@
 from lark import Lark, Transformer
-from pyModelChecking.CTL import *
+from pyModelChecking.LTL import *
 
 GRAMMAR = r"""
     ?value: "true"          -> true
